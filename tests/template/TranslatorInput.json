@@ -1,0 +1,13 @@
+{
+  "Level2": {
+    "InventoryHelp": "Push this button to open your inventory",
+    "Reload": "Reload",
+    "Shoot": "Shoot",
+    "Inventory": "Inventory"
+  },
+  "Level1": {
+    "Tutorial.1": "Today I am going to show you how to do something very cool",
+    "Greetings": "Hello World",
+    "Tutorial.2": "Let's get started!"
+  }
+}

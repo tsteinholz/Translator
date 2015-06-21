@@ -27,7 +27,12 @@
 
 package com.laststandstudio.translator;
 
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 
 public class Translator {
 
@@ -157,11 +162,45 @@ public class Translator {
 
     /** Generate the basic template File */
     public static void template() {
-        //TODO Generate Template
+        JSONObject template = new JSONObject();
+
+        JSONObject lvl1 = new JSONObject();
+        lvl1.put("Greetings", "Hello World");
+        lvl1.put("Tutorial.1", "Today I am going to show you how to do something very cool");
+        lvl1.put("Tutorial.2", "Let's get started!");
+
+        JSONObject lvl2 = new JSONObject();
+        lvl2.put("Shoot", "Shoot");
+        lvl2.put("Reload", "Reload");
+        lvl2.put("Inventory", "Inventory");
+        lvl2.put("InventoryHelp", "Push this button to open your inventory");
+
+        template.put("Level1", lvl1);
+        template.put("Level2", lvl2);
+
+        try {
+            FileWriter fileWriter = new FileWriter("TranslatorInput.json");
+            fileWriter.write(template.toJSONString());
+            fileWriter.flush();
+            fileWriter.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        System.out.println("Template has been generated!");
     }
 
     public static void list() {
-        //TODO List all Supported Languages
+        System.out.println("We currently support:");
+        System.out.println("Afrikaans, Albanian, Arabic, Armenian, Azerbaijani, Basque, Belarusian, Bengali, Bosnian,\n" +
+                "Bulgarian, Catalan, Cebuano, Chichewa, Chinese, Croatian, Czech, Danish, Dutch, English, Esperanto,\n" +
+                " Estonian, Filipino, Finnish, French, Galician, Georgian, German, Greek, Gujarati, Haitian_Creole,\n" +
+                " Hausa, Hebrew, Hindi, Hmong, Hungarian, Icelandic, Igbo, Indonesian, Irish, Italian, Japanese, \n" +
+                "Javanese, Kannada, Kazakh, Khmer, Korean, Lao, Latin, Latvian, Lithuanian, Macedonian, Malagasy, Malay,\n" +
+                " Malayalam, Maltese, Maori, Marathi, Mongolian, Myanmar, Nepali, Norwegian, Persian, Polish, Portuguese,\n" +
+                " Punjabi, Romanian, Russian, Serbian, Sesotho, Sinhala, Slovak, Slovenian, Somali, Spanish, Sundanese,\n" +
+                " Swahili, Swedish, Tajik, Tamil, Telugu, Thai, Turkish, Ukrainian, Urdu, Uzbek, Vietnamese, Welsh,\n" +
+                " Yiddish, Yoruba, Zulu");
     }
 
     public static void main(String[] args) {
