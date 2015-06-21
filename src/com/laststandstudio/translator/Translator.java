@@ -128,14 +128,19 @@ public class Translator {
     /** Print out the Program Help */
     public static void help() {
         String help = "Last Stand Engine Translator\n";
-        help += "\tto use this program you need an input file, if you do not have one you can generate one with -t\n";
-        help += "\tThis will generate a standard input file for you with the default name that requires no parameters\n";
-        help += "\t. You can rename this file as you want but you will need to use '-i filename' parameters instead.\n";
+        help += "\tTo use this program you need an input file, if you do not have one you can generate one with '-t'\n";
+        help += "\tThis will generate a standard input file for you with the default name that requires no parameters.\n";
+        help += "\tYou can rename this file as you want but you will need to use '-i filename' parameters instead.\n";
         help += "\t\n";
-        help += "\t-h / --help : Display Help Screen\n";
-        help += "\t-i / --input : Load with config\n";
-        help += "\t-t / --template : Generate Template File\n";
-        help += "\t-l / --list : Lists all supported Languages\n";
+        help += "\t-h | --help : Display Help Screen\n";
+        help += "\t\tusage: java -jar translator.jar -h\n";
+        help += "\t-i | --input : Load with config\n";
+        help += "\t\tusage: java -jar translator.jar -i SomeFile.json\n";
+        help += "\t-t | --template : Generate Template File\n";
+        help += "\t\tusage: java -jar translator.jar -t\n";
+        help += "\t-l | --list : Lists all supported Languages\n";
+        help += "\t\tusage: java -jar translator.jar -l\n";
+
         System.out.println(help);
     }
 
@@ -145,7 +150,7 @@ public class Translator {
         if (f.isFile()) {
             //TODO : Generate the files from the input
         } else {
-            System.out.println("ERROR" + file + " does not exist!\n");
+            System.out.println("ERROR: " + file + " does not exist!\n");
             help();
         }
     }
@@ -160,7 +165,7 @@ public class Translator {
     }
 
     public static void main(String[] args) {
-        String x = args[0];
+        String x = args.length > 0 ? args[0] : "";
 
         if (x.equalsIgnoreCase("-h") || x.equalsIgnoreCase("--help")) {
 
