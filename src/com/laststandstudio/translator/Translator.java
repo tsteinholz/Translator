@@ -27,33 +27,36 @@
 
 package com.laststandstudio.translator;
 
-import com.gtranslate.Language;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
+import com.memetix.mst.detect.Detect;
+import com.memetix.mst.language.Language;
+import com.memetix.mst.translate.Translate;
 
 import java.io.*;
-import java.util.Iterator;
+import java.util.Map;
+import java.util.Properties;
 
 public class Translator {
 
-    /** Array of all supported language's prefixes for google-translate. */
+    /**
+     * Array of all supported language's prefixes for google-translate.
+     */
     public static String[] Languages = {
-    "af", "sq", "ar", "hy", "az", "eu",
-    "be", "bn", "bg", "ca", "hr", "cs",
-    "da", "nl", "en", "et", "tl", "fi",
-    "fr", "gl", "ka", "de", "el", "gu",
-    "ht", "iw", "hi", "hu", "is", "id",
-    "ga", "it", "ja", "kn", "ko", "la",
-    "lv", "lt", "mk", "ms", "mt", "no",
-    "fa", "pl", "pt", "ro", "ru", "sr",
-    "sk", "sl", "es", "sw", "sv", "ta",
-    "te", "th", "tr", "uk", "ur", "vi",
-    "cy", "yi", "zh-CN", "zh-TW",
+            "af", "sq", "ar", "hy", "az", "eu",
+            "be", "bn", "bg", "ca", "hr", "cs",
+            "da", "nl", "en", "et", "tl", "fi",
+            "fr", "gl", "ka", "de", "el", "gu",
+            "ht", "iw", "hi", "hu", "is", "id",
+            "ga", "it", "ja", "kn", "ko", "la",
+            "lv", "lt", "mk", "ms", "mt", "no",
+            "fa", "pl", "pt", "ro", "ru", "sr",
+            "sk", "sl", "es", "sw", "sv", "ta",
+            "te", "th", "tr", "uk", "ur", "vi",
+            "cy", "yi", "zh-CN", "zh-TW",
     };
 
-    /** Print out the Program Help */
+    /**
+     * Print out the Program Help
+     */
     public static void help() {
         String help = "Last Stand Engine Translator\n";
         help += "\tTo use this program you need an input file, if you do not have one you can generate one with '-t'\n";
@@ -72,72 +75,67 @@ public class Translator {
         System.out.println(help);
     }
 
-    /** Generate all of the Language's Files */
-    public static void Generate(String file) {
-        File f = new File(file);
-        if (f.isFile()) {
-            com.gtranslate.Translator translator = com.gtranslate.Translator.getInstance();
-            Language language = Language.getInstance();
+    /** Set information for Microsoft Azure */
+    private static void setAzure() {
+        Console console = System.console();
+        String id = console.readLine("Enter your Windows Azure Client Id:");
+        String secret = console.readLine("Enter your Windows Azure Client Secret:");
 
+        //Translate
+        Translate.setClientId(id);
+        Translate.setClientSecret(secret);
+        //Detect
+        Detect.setClientId(id);
+        Detect.setClientSecret(secret);
+        //Language
+        Language.setClientId(id);
+        Language.setClientSecret(secret);
+    }
+
+    /**
+     * Generate all of the Language's Files
+     */
+    public static void Generate(String file) throws Exception {
+        setAzure();
+        File f = new File(file);
+        //If the given path is a file and not a directory or non-existent
+        if (f.isFile()) {
+
+            Properties dialog = new Properties();
+            FileInputStream inputStream = new FileInputStream(file);
+
+            //Create the Output Directory if it doesn't exist
             File out = new File("Dialogs");
 
             if (!out.exists()) {
                 try {
                     out.mkdir();
-                } catch(SecurityException se) {
+                } catch (SecurityException se) {
                     se.printStackTrace();
                 }
             }
 
-            for (String x : Languages) {
-                JSONParser parser = new JSONParser();
+            //Load Properties File and Close Input Stream
+            dialog.load(inputStream);
+            inputStream.close();
 
-                try {
 
-                    Object obj = parser.parse(new FileReader(file));
-                    JSONObject jsonObj = (JSONObject) obj;
-
-                    JSONArray levels = (JSONArray) ((JSONObject) obj).get("Levels");
-
-                    JSONObject outObj = new JSONObject();
-                    JSONArray outLevel = new JSONArray();
-
-                    int z = 0;
-
-                    //for each object in loaded json array
-                    for (Object y : levels) {
-                        //objects past this point are all JSON objs
-                        if (y instanceof JSONObject) {
-                            JSONObject tempJobj = (JSONObject) y;
-                            Iterator<JSONObject> iterator = tempJobj.values().iterator();
-                            while (iterator.hasNext()) {
-
-                                //tempJobj.put(tempJobj.key());
-                                translator.translate("", translator.detect(""), language.getNameLanguage(x));
-                                outLevel.add(z, iterator.next());
-                                z++;
-                            }
-                        }
-                    }
-
-                    outObj.put("Levels", outLevel);
+            for (Language lang : Language.values()) {
+                //System.out.println("Generating " + language.getNameLanguage(x) + " Language Translation File...");
+                Properties temp = new Properties();
+                for (Map.Entry<Object, Object> e : dialog.entrySet()) {
+                    String key = (String) e.getKey();
+                    String value = (String) e.getValue();
+                    //temp.put(key, translator.translate(value, translator.detect(value), x));
+                    temp.put(key, Translate.execute(value, Detect.execute(value), lang));
 
                     try {
-                        FileWriter fileWriter = new FileWriter("Dialogs" +
-                                System.getProperty("file.separator") + x + "-Dialog.json");
-                        fileWriter.write(outObj.toJSONString());
-                        fileWriter.flush();
-                        fileWriter.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
+                        FileWriter fileWriter = new FileWriter(
+                                "Dialog" + System.getProperty("file.separator") + lang.toString() + "-Dialog.properties");
+                        temp.store(fileWriter, lang.toString());
+                    } catch (IOException io) {
+                        io.printStackTrace();
                     }
-
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (ParseException e) {
-                    e.printStackTrace();
                 }
 
             }
@@ -148,32 +146,24 @@ public class Translator {
         }
     }
 
-    /** Generate the basic template File */
+    /**
+     * Generate the basic template File
+     */
+
     public static void template() {
-        JSONObject template = new JSONObject();
 
-        JSONObject lvl1 = new JSONObject();
-        lvl1.put("Greetings", "Hello World");
-        lvl1.put("Tutorial.1", "Today I am going to show you how to do something very cool");
-        lvl1.put("Tutorial.2", "Let's get started!");
-
-        JSONObject lvl2 = new JSONObject();
-        lvl2.put("Shoot", "Shoot");
-        lvl2.put("Reload", "Reload");
-        lvl2.put("Inventory", "Inventory");
-        lvl2.put("InventoryHelp", "Push this button to open your inventory");
-
-        JSONArray levels = new JSONArray();
-        levels.add(0, lvl1);
-        levels.add(1, lvl2);
-
-        template.put("Levels", levels);
+        Properties dialog = new Properties();
+        dialog.setProperty("Greetings", "Hello World");
+        dialog.setProperty("Tutorial.1", "Today I am going to show you how to do something very cool");
+        dialog.setProperty("Tutorial.2", "Let's get started!");
+        dialog.setProperty("Shoot", "Shoot");
+        dialog.setProperty("Reload", "Reload");
+        dialog.setProperty("Inventory", "Inventory");
+        dialog.setProperty("InventoryHelp", "Push this button to open your inventory");
 
         try {
-            FileWriter fileWriter = new FileWriter("TranslatorInput.json");
-            fileWriter.write(template.toJSONString());
-            fileWriter.flush();
-            fileWriter.close();
+            FileWriter fileWriter = new FileWriter("TranslatorInput.properties");
+            dialog.store(fileWriter, "This template has been auto-magically generated for your use!\n");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -207,7 +197,11 @@ public class Translator {
                 System.out.println("ERROR: No input file specified!\n");
                 help();
             } else {
-                Generate(args[1]);
+                try {
+                    Generate(args[1]);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
 
         } else if (x.equalsIgnoreCase("-t") || x.equalsIgnoreCase("--template")) {
@@ -220,7 +214,11 @@ public class Translator {
 
         } else {
 
-            Generate("TranslatorInput.json");
+            try {
+                Generate("TranslatorInput.properties");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
 
         }
     }
