@@ -27,6 +27,7 @@
 
 package com.laststandstudio.translator;
 
+import com.gtranslate.Language;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -76,6 +77,7 @@ public class Translator {
         File f = new File(file);
         if (f.isFile()) {
             com.gtranslate.Translator translator = com.gtranslate.Translator.getInstance();
+            Language language = Language.getInstance();
 
             File out = new File("Dialogs");
 
@@ -93,16 +95,25 @@ public class Translator {
                 try {
 
                     Object obj = parser.parse(new FileReader(file));
+                    JSONObject jsonObj = (JSONObject) obj;
+
                     JSONArray levels = (JSONArray) ((JSONObject) obj).get("Levels");
+
                     JSONObject outObj = new JSONObject();
                     JSONArray outLevel = new JSONArray();
+
                     int z = 0;
 
+                    //for each object in loaded json array
                     for (Object y : levels) {
+                        //objects past this point are all JSON objs
                         if (y instanceof JSONObject) {
-                            JSONObject tempJobj = new JSONObject();
-                            Iterator<JSONObject> iterator = ((JSONObject)y).values().iterator();
+                            JSONObject tempJobj = (JSONObject) y;
+                            Iterator<JSONObject> iterator = tempJobj.values().iterator();
                             while (iterator.hasNext()) {
+
+                                //tempJobj.put(tempJobj.key());
+                                translator.translate("", translator.detect(""), language.getNameLanguage(x));
                                 outLevel.add(z, iterator.next());
                                 z++;
                             }
