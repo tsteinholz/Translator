@@ -29,105 +29,80 @@ package com.laststandstudio.translator;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
+import java.util.Iterator;
 
 public class Translator {
 
-    /** List (Enumeration) of all supported languages. */
-    enum Language {
-        Afrikaans,
-        Albanian,
-        Arabic,
-        Armenian,
-        Azerbaijani,
-        Basque,
-        Belarusian,
-        Bengali,
-        Bosnian,
-        Bulgarian,
-        Catalan,
-        Cebuano,
-        Chichewa,
-        Chinese,
-        Croatian,
-        Czech,
-        Danish,
-        Dutch,
-        English,
-        Esperanto,
-        Estonian,
-        Filipino,
-        Finnish,
-        French,
-        Galician,
-        Georgian,
-        German,
-        Greek,
-        Gujarati,
-        Haitian_Creole,
-        Hausa,
-        Hebrew,
-        Hindi,
-        Hmong,
-        Hungarian,
-        Icelandic,
-        Igbo,
-        Indonesian,
-        Irish,
-        Italian,
-        Japanese,
-        Javanese,
-        Kannada,
-        Kazakh,
-        Khmer,
-        Korean,
-        Lao,
-        Latin,
-        Latvian,
-        Lithuanian,
-        Macedonian,
-        Malagasy,
-        Malay,
-        Malayalam,
-        Maltese,
-        Maori,
-        Marathi,
-        Mongolian,
-        Myanmar,
-        Nepali,
-        Norwegian,
-        Persian,
-        Polish,
-        Portuguese,
-        Punjabi,
-        Romanian,
-        Russian,
-        Serbian,
-        Sesotho,
-        Sinhala,
-        Slovak,
-        Slovenian,
-        Somali,
-        Spanish,
-        Sundanese,
-        Swahili,
-        Swedish,
-        Tajik,
-        Tamil,
-        Telugu,
-        Thai,
-        Turkish,
-        Ukrainian,
-        Urdu,
-        Uzbek,
-        Vietnamese,
-        Welsh,
-        Yiddish,
-        Yoruba,
-        Zulu,
+    /** Array of all supported language's prefixes for google-translate. */
+    public static String[] Languages = {
+    "af",
+    "sq",
+    "ar",
+    "hy",
+    "az",
+    "eu",
+    "be",
+    "bn",
+    "bg",
+    "ca",
+    "hr",
+    "cs",
+    "da",
+    "nl",
+    "en",
+    "et",
+    "tl",
+    "fi",
+    "fr",
+    "gl",
+    "ka",
+    "de",
+    "el",
+    "gu",
+    "ht",
+    "iw",
+    "hi",
+    "hu",
+    "is",
+    "id",
+    "ga",
+    "it",
+    "ja",
+    "kn",
+    "ko",
+    "la",
+    "lv",
+    "lt",
+    "mk",
+    "ms",
+    "mt",
+    "no",
+    "fa",
+    "pl",
+    "pt",
+    "ro",
+    "ru",
+    "sr",
+    "sk",
+    "sl",
+    "es",
+    "sw",
+    "sv",
+    "ta",
+    "te",
+    "th",
+    "tr",
+    "uk",
+    "ur",
+    "vi",
+    "cy",
+    "yi",
+    "zh-CN",
+    "zh-TW",
     };
 
     /** Print out the Program Help */
@@ -153,7 +128,45 @@ public class Translator {
     public static void Generate(String file) {
         File f = new File(file);
         if (f.isFile()) {
-            //TODO : Generate the files from the input
+            com.gtranslate.Translator translator = com.gtranslate.Translator.getInstance();
+
+            File out = new File("Dialogs");
+
+            if (!out.exists()) {
+                try {
+                    out.mkdir();
+                } catch(SecurityException se) {
+                    se.printStackTrace();
+                }
+            }
+
+            for (String x : Languages) {
+                JSONParser parser = new JSONParser();
+
+                try {
+
+                    Object obj = parser.parse(new FileReader(file));
+                    JSONArray levels = (JSONArray) ((JSONObject) obj).get("Levels");
+                    JSONArray outLevel = new JSONArray();
+
+                    for (Object y : levels) {
+                        if (y instanceof JSONObject) {
+                            JSONObject tempJobj = new JSONObject();
+                            Iterator<?> keys = ((JSONObject) y).keySet();
+                            //tempJobj.put( ));
+                        }
+                    }
+
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+
+            }
+
         } else {
             System.out.println("ERROR: " + file + " does not exist!\n");
             help();
@@ -175,8 +188,10 @@ public class Translator {
         lvl2.put("Inventory", "Inventory");
         lvl2.put("InventoryHelp", "Push this button to open your inventory");
 
-        template.put("Level1", lvl1);
-        template.put("Level2", lvl2);
+        JSONArray levels = new JSONArray();
+        levels.add(0, lvl1);
+        levels.add(1, lvl2);
+        template.put("Levels", levels);
 
         try {
             FileWriter fileWriter = new FileWriter("TranslatorInput.json");
