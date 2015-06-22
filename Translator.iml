@@ -8,9 +8,8 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="json-simple-1.1.1" level="project" />
-    <orderEntry type="library" name="gtranslateapi-1.0" level="project" />
-    <orderEntry type="library" name="json-simple-1.1.1" level="project" />
-    <orderEntry type="library" name="google-api-translate-java-0.97" level="project" />
     <orderEntry type="library" name="microsoft-translator-java-api-0.6.2-jar-with-dependencies" level="project" />
+    <orderEntry type="library" name="google-api-translate-java-0.97" level="project" />
+    <orderEntry type="library" name="gtranslateapi-1.0" level="project" />
   </component>
 </module>

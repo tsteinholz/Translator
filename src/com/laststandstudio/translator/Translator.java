@@ -27,15 +27,18 @@
 
 package com.laststandstudio.translator;
 
-import com.memetix.mst.detect.Detect;
-import com.memetix.mst.language.Language;
-import com.memetix.mst.translate.Translate;
+import com.google.api.GoogleAPI;
+import com.google.api.translate.Language;
+import com.google.api.translate.Translate;
 
 import java.io.*;
 import java.util.Map;
 import java.util.Properties;
 
 public class Translator {
+
+    public static boolean Google = false;
+    public static boolean Microsoft = false;
 
     /**
      * Array of all supported language's prefixes for google-translate.
@@ -75,28 +78,55 @@ public class Translator {
         System.out.println(help);
     }
 
-    /** Set information for Microsoft Azure */
+    /**
+     * Set information for Google Translate
+     */
+    private static void setGoogle() {
+        Google = true;
+
+        System.out.println("WARNING: GOOGLE TRANSLATION SERVICES ARE NOT FREE, PLEASE LOOK HERE FOR YOUR INFORMATION\n" +
+                "http://code.google.com/apis/language/translate/v2/getting_started.html");
+
+        Console console = System.console();
+        String http = console.readLine("Enter the URL of your site:");
+        String key = console.readLine("Enter your Google API key:");
+
+        //GoogleAPI.setHttpReferrer(http);
+        //GoogleAPI.setKey(key);
+
+        System.out.println("Your information has been sent to Google.");
+    }
+
+    /**
+     * Set information for Microsoft Azure
+     */
     private static void setAzure() {
+        Microsoft = true;
+
+        System.out.println("WARNING: MICROSOFT TRANSLATION SERVICES ARE NOT FREE, PLEASE LOOK HERE FOR YOUR INFORMATION\n" +
+                "http://msdn.microsoft.com/en-us/library/hh454950.aspx");
+
         Console console = System.console();
         String id = console.readLine("Enter your Windows Azure Client Id:");
         String secret = console.readLine("Enter your Windows Azure Client Secret:");
 
         //Translate
-        Translate.setClientId(id);
-        Translate.setClientSecret(secret);
+        com.memetix.mst.translate.Translate.setClientId(id);
+        com.memetix.mst.translate.Translate.setClientSecret(secret);
         //Detect
-        Detect.setClientId(id);
-        Detect.setClientSecret(secret);
+        com.memetix.mst.detect.Detect.setClientId(id);
+        com.memetix.mst.detect.Detect.setClientSecret(secret);
         //Language
-        Language.setClientId(id);
-        Language.setClientSecret(secret);
+        com.memetix.mst.language.Language.setClientId(id);
+        com.memetix.mst.language.Language.setClientSecret(secret);
+
+        System.out.println("Your information has been sent to Microsoft.");
     }
 
     /**
      * Generate all of the Language's Files
      */
     public static void Generate(String file) throws Exception {
-        setAzure();
         File f = new File(file);
         //If the given path is a file and not a directory or non-existent
         if (f.isFile()) {
@@ -119,26 +149,55 @@ public class Translator {
             dialog.load(inputStream);
             inputStream.close();
 
+            if (Google) {
 
-            for (Language lang : Language.values()) {
-                //System.out.println("Generating " + language.getNameLanguage(x) + " Language Translation File...");
-                Properties temp = new Properties();
-                for (Map.Entry<Object, Object> e : dialog.entrySet()) {
-                    String key = (String) e.getKey();
-                    String value = (String) e.getValue();
+                com.gtranslate.Translator translator = com.gtranslate.Translator.getInstance();
+                com.gtranslate.Language language = com.gtranslate.Language.getInstance();
+
+                for (String x : Languages) {
+                    Properties temp = new Properties();
+                    for (Map.Entry<Object, Object> e : dialog.entrySet()) {
+                        String key = (String) e.getKey();
+                        String value = (String) e.getValue();
+
+                        System.out.println("Generating " + com.google.api.detect.Detect.execute(x) + " Language Translation File...");
+                        //temp.put(key, Translate.execute(value, Detect.execute(value), lang));
+                        //temp.put(key, Translate.DEFAULT.execute(value, Language.ENGLISH, ));
+                        temp.put(key, translator.translate(value ,translator.detect(value),language.getNameLanguage(x)));
+                        try {
+                            FileWriter fileWriter = new FileWriter(
+                                    "Dialog" + System.getProperty("file.separator") + x + "-Dialog.properties");
+                            temp.store(fileWriter, com.google.api.detect.Detect.execute(x).toString());
+                        } catch (IOException io) {
+                            io.printStackTrace();
+                        }
+                    }
+                    //System.out.println("Generating " + language.getNameLanguage(x) + " Language Translation File...");
                     //temp.put(key, translator.translate(value, translator.detect(value), x));
-                    temp.put(key, Translate.execute(value, Detect.execute(value), lang));
+                    //temp.put(key, Translate.execute(value, com.google.api.detect.Detect.execute(value), lang));
+                }
+            } else if (Microsoft) {
+                for (com.memetix.mst.language.Language lang : com.memetix.mst.language.Language.values()) {
+                    Properties temp = new Properties();
+                    for (Map.Entry<Object, Object> e : dialog.entrySet()) {
+                        String key = (String) e.getKey();
+                        String value = (String) e.getValue();
 
-                    try {
-                        FileWriter fileWriter = new FileWriter(
-                                "Dialog" + System.getProperty("file.separator") + lang.toString() + "-Dialog.properties");
-                        temp.store(fileWriter, lang.toString());
-                    } catch (IOException io) {
-                        io.printStackTrace();
+                        System.out.println("Generating " + lang + " Language Translation File...");
+                        //temp.put(key, Translate.execute(value, Detect.execute(value), lang));
+                        try {
+                            FileWriter fileWriter = new FileWriter(
+                                    "Dialog" + System.getProperty("file.separator") + lang.toString() + "-Dialog.properties");
+                            temp.store(fileWriter, lang.toString());
+                        } catch (IOException io) {
+                            io.printStackTrace();
+                        }
                     }
                 }
-
+            } else {
+                System.out.println("ERROR: Neither Google nor Microsoft was set up!");
             }
+
 
         } else {
             System.out.println("ERROR: " + file + " does not exist!\n");
@@ -213,6 +272,24 @@ public class Translator {
             list();
 
         } else {
+
+            Console console = System.console();
+            System.out.println("Pick your Translation Service");
+            System.out.println("a) Google Translate");
+            System.out.println("b) Microsoft Azure");
+            String out = console.readLine("-");
+
+            switch (out.toLowerCase()) {
+                case "a":
+                    setGoogle();
+                    break;
+                case "b":
+                    setAzure();
+                    break;
+                default:
+                    System.out.println("ERROR: Please choose 'A' or 'B'.");
+                    break;
+            }
 
             try {
                 Generate("TranslatorInput.properties");
