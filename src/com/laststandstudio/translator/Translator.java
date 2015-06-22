@@ -39,70 +39,17 @@ public class Translator {
 
     /** Array of all supported language's prefixes for google-translate. */
     public static String[] Languages = {
-    "af",
-    "sq",
-    "ar",
-    "hy",
-    "az",
-    "eu",
-    "be",
-    "bn",
-    "bg",
-    "ca",
-    "hr",
-    "cs",
-    "da",
-    "nl",
-    "en",
-    "et",
-    "tl",
-    "fi",
-    "fr",
-    "gl",
-    "ka",
-    "de",
-    "el",
-    "gu",
-    "ht",
-    "iw",
-    "hi",
-    "hu",
-    "is",
-    "id",
-    "ga",
-    "it",
-    "ja",
-    "kn",
-    "ko",
-    "la",
-    "lv",
-    "lt",
-    "mk",
-    "ms",
-    "mt",
-    "no",
-    "fa",
-    "pl",
-    "pt",
-    "ro",
-    "ru",
-    "sr",
-    "sk",
-    "sl",
-    "es",
-    "sw",
-    "sv",
-    "ta",
-    "te",
-    "th",
-    "tr",
-    "uk",
-    "ur",
-    "vi",
-    "cy",
-    "yi",
-    "zh-CN",
-    "zh-TW",
+    "af", "sq", "ar", "hy", "az", "eu",
+    "be", "bn", "bg", "ca", "hr", "cs",
+    "da", "nl", "en", "et", "tl", "fi",
+    "fr", "gl", "ka", "de", "el", "gu",
+    "ht", "iw", "hi", "hu", "is", "id",
+    "ga", "it", "ja", "kn", "ko", "la",
+    "lv", "lt", "mk", "ms", "mt", "no",
+    "fa", "pl", "pt", "ro", "ru", "sr",
+    "sk", "sl", "es", "sw", "sv", "ta",
+    "te", "th", "tr", "uk", "ur", "vi",
+    "cy", "yi", "zh-CN", "zh-TW",
     };
 
     /** Print out the Program Help */
@@ -147,14 +94,31 @@ public class Translator {
 
                     Object obj = parser.parse(new FileReader(file));
                     JSONArray levels = (JSONArray) ((JSONObject) obj).get("Levels");
+                    JSONObject outObj = new JSONObject();
                     JSONArray outLevel = new JSONArray();
+                    int z = 0;
 
                     for (Object y : levels) {
                         if (y instanceof JSONObject) {
                             JSONObject tempJobj = new JSONObject();
-                            Iterator<?> keys = ((JSONObject) y).keySet();
-                            //tempJobj.put( ));
+                            Iterator<JSONObject> iterator = ((JSONObject)y).values().iterator();
+                            while (iterator.hasNext()) {
+                                outLevel.add(z, iterator.next());
+                                z++;
+                            }
                         }
+                    }
+
+                    outObj.put("Levels", outLevel);
+
+                    try {
+                        FileWriter fileWriter = new FileWriter("Dialogs" +
+                                System.getProperty("file.separator") + x + "-Dialog.json");
+                        fileWriter.write(outObj.toJSONString());
+                        fileWriter.flush();
+                        fileWriter.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
 
                 } catch (FileNotFoundException e) {
@@ -191,6 +155,7 @@ public class Translator {
         JSONArray levels = new JSONArray();
         levels.add(0, lvl1);
         levels.add(1, lvl2);
+
         template.put("Levels", levels);
 
         try {
@@ -209,13 +174,13 @@ public class Translator {
         System.out.println("We currently support:");
         System.out.println("Afrikaans, Albanian, Arabic, Armenian, Azerbaijani, Basque, Belarusian, Bengali, Bosnian,\n" +
                 "Bulgarian, Catalan, Cebuano, Chichewa, Chinese, Croatian, Czech, Danish, Dutch, English, Esperanto,\n" +
-                " Estonian, Filipino, Finnish, French, Galician, Georgian, German, Greek, Gujarati, Haitian_Creole,\n" +
-                " Hausa, Hebrew, Hindi, Hmong, Hungarian, Icelandic, Igbo, Indonesian, Irish, Italian, Japanese, \n" +
+                "Estonian, Filipino, Finnish, French, Galician, Georgian, German, Greek, Gujarati, Haitian_Creole,\n" +
+                "Hausa, Hebrew, Hindi, Hmong, Hungarian, Icelandic, Igbo, Indonesian, Irish, Italian, Japanese, \n" +
                 "Javanese, Kannada, Kazakh, Khmer, Korean, Lao, Latin, Latvian, Lithuanian, Macedonian, Malagasy, Malay,\n" +
-                " Malayalam, Maltese, Maori, Marathi, Mongolian, Myanmar, Nepali, Norwegian, Persian, Polish, Portuguese,\n" +
-                " Punjabi, Romanian, Russian, Serbian, Sesotho, Sinhala, Slovak, Slovenian, Somali, Spanish, Sundanese,\n" +
-                " Swahili, Swedish, Tajik, Tamil, Telugu, Thai, Turkish, Ukrainian, Urdu, Uzbek, Vietnamese, Welsh,\n" +
-                " Yiddish, Yoruba, Zulu");
+                "Malayalam, Maltese, Maori, Marathi, Mongolian, Myanmar, Nepali, Norwegian, Persian, Polish, Portuguese,\n" +
+                "Punjabi, Romanian, Russian, Serbian, Sesotho, Sinhala, Slovak, Slovenian, Somali, Spanish, Sundanese,\n" +
+                "Swahili, Swedish, Tajik, Tamil, Telugu, Thai, Turkish, Ukrainian, Urdu, Uzbek, Vietnamese, Welsh,\n" +
+                "Yiddish, Yoruba, Zulu");
     }
 
     public static void main(String[] args) {
