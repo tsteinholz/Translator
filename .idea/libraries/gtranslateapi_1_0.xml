@@ -1,7 +1,7 @@
 <component name="libraryTable">
   <library name="gtranslateapi-1.0">
     <CLASSES>
-      <root url="jar://$PROJECT_DIR$/lib/gtranslateapi-1.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/libs/gtranslateapi-1.0.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />

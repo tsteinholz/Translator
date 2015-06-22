@@ -84,15 +84,15 @@ public class Translator {
     private static void setGoogle() {
         Google = true;
 
-        System.out.println("WARNING: GOOGLE TRANSLATION SERVICES ARE NOT FREE, PLEASE LOOK HERE FOR YOUR INFORMATION\n" +
-                "http://code.google.com/apis/language/translate/v2/getting_started.html");
+        System.out.println("\nWARNING: GOOGLE TRANSLATION SERVICES ARE NOT FREE, PLEASE LOOK HERE FOR YOUR INFORMATION\n" +
+                "http://code.google.com/apis/language/translate/v2/getting_started.html\n");
 
         Console console = System.console();
         String http = console.readLine("Enter the URL of your site:");
         String key = console.readLine("Enter your Google API key:");
 
-        //GoogleAPI.setHttpReferrer(http);
-        //GoogleAPI.setKey(key);
+        GoogleAPI.setHttpReferrer(http);
+        GoogleAPI.setKey(key);
 
         System.out.println("Your information has been sent to Google.");
     }
@@ -103,8 +103,8 @@ public class Translator {
     private static void setAzure() {
         Microsoft = true;
 
-        System.out.println("WARNING: MICROSOFT TRANSLATION SERVICES ARE NOT FREE, PLEASE LOOK HERE FOR YOUR INFORMATION\n" +
-                "http://msdn.microsoft.com/en-us/library/hh454950.aspx");
+        System.out.println("\nWARNING: MICROSOFT TRANSLATION SERVICES ARE NOT FREE, PLEASE LOOK HERE FOR YOUR INFORMATION\n" +
+                "http://msdn.microsoft.com/en-us/library/hh454950.aspx\n");
 
         Console console = System.console();
         String id = console.readLine("Enter your Windows Azure Client Id:");
@@ -151,6 +151,8 @@ public class Translator {
 
             if (Google) {
 
+                //TODO : Fix this method
+
                 com.gtranslate.Translator translator = com.gtranslate.Translator.getInstance();
                 com.gtranslate.Language language = com.gtranslate.Language.getInstance();
 
@@ -163,7 +165,7 @@ public class Translator {
                         System.out.println("Generating " + com.google.api.detect.Detect.execute(x) + " Language Translation File...");
                         //temp.put(key, Translate.execute(value, Detect.execute(value), lang));
                         //temp.put(key, Translate.DEFAULT.execute(value, Language.ENGLISH, ));
-                        temp.put(key, translator.translate(value ,translator.detect(value),language.getNameLanguage(x)));
+                        temp.put(key, translator.translate(value, translator.detect(value), language.getNameLanguage(x)));
                         try {
                             FileWriter fileWriter = new FileWriter(
                                     "Dialog" + System.getProperty("file.separator") + x + "-Dialog.properties");
@@ -177,13 +179,20 @@ public class Translator {
                     //temp.put(key, Translate.execute(value, com.google.api.detect.Detect.execute(value), lang));
                 }
             } else if (Microsoft) {
+
                 for (com.memetix.mst.language.Language lang : com.memetix.mst.language.Language.values()) {
+
                     Properties temp = new Properties();
+
                     for (Map.Entry<Object, Object> e : dialog.entrySet()) {
+
                         String key = (String) e.getKey();
                         String value = (String) e.getValue();
 
-                        System.out.println("Generating " + lang + " Language Translation File...");
+                        System.out.println("Generating " + lang.name() + " Language Translation File...");
+                        temp.put(key, com.memetix.mst.translate.Translate.execute
+                                (value, com.memetix.mst.language.Language.AUTO_DETECT, lang));
+
                         //temp.put(key, Translate.execute(value, Detect.execute(value), lang));
                         try {
                             FileWriter fileWriter = new FileWriter(
@@ -197,7 +206,6 @@ public class Translator {
             } else {
                 System.out.println("ERROR: Neither Google nor Microsoft was set up!");
             }
-
 
         } else {
             System.out.println("ERROR: " + file + " does not exist!\n");
